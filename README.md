@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## Sanad Rich text Editor V1.0.0
 Sanad tinymce Editor Integratoin.
 
@@ -53,6 +52,3 @@ file edit view insert format tools table help
 
 ---
 
-=======
-# snd_Editor
->>>>>>> 976ae817a430d5d04d18b9553a21b2ce10cfc866

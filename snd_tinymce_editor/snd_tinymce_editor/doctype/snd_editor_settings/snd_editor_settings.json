@@ -1,0 +1,126 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-03-29 03:00:44.473019",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "editor_settings_section",
+  "apply_on_all_default_editors",
+  "sanad_editor_items",
+  "data_4",
+  "toolbar",
+  "column_break_6",
+  "toolbar_options",
+  "section_break_8",
+  "plugins",
+  "column_break_10",
+  "plugins_options",
+  "section_break_12",
+  "menubar",
+  "column_break_14",
+  "menubar_options"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "fieldname": "apply_on_all_default_editors",
+   "fieldtype": "Check",
+   "label": "Apply On All Default Editors"
+  },
+  {
+   "depends_on": "eval: !doc.apply_on_all_default_editors",
+   "fieldname": "sanad_editor_items",
+   "fieldtype": "Table",
+   "label": "Apply On Specifics Editors",
+   "options": "Sanad Editor items"
+  },
+  {
+   "fieldname": "editor_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Editor Settings"
+  },
+  {
+   "fieldname": "data_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "toolbar",
+   "fieldtype": "Small Text",
+   "label": "Toolbar"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "toolbar_options",
+   "fieldtype": "Small Text",
+   "label": "Toolbar Options",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "plugins",
+   "fieldtype": "Small Text",
+   "label": "Plugins"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plugins_options",
+   "fieldtype": "Small Text",
+   "label": "Plugins Options",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_12",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "menubar",
+   "fieldtype": "Small Text",
+   "label": "Menubar"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "menubar_options",
+   "fieldtype": "Small Text",
+   "label": "Menubar Options",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-03-29 07:10:56.581855",
+ "modified_by": "Administrator",
+ "module": "Snd Tinymce Editor",
+ "name": "SND Editor Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
