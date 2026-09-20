@@ -5,3 +5,4 @@
 tags
 snd_tinymce_editor/docs/current
 node_modules/
+__pycache__/

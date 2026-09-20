@@ -193,3 +193,6 @@ app_include_js = [
 # ]
 
 boot_session = "snd_tinymce_editor.startup.boot.boot_session"
+
+# Automatic initialization of categories, snippets, and settings
+after_migrate = "snd_tinymce_editor.setup_defaults.after_migrate"
