@@ -13,11 +13,11 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/snd_tinymce_editor/css/snd_tinymce_editor.css"
 # app_include_js = "/assets/snd_tinymce_editor/js/snd_tinymce_editor.js"
-app_include_css = "/assets/snd_tinymce_editor/css/snd_tinymce_editor.css"
+app_include_css = "/assets/snd_tinymce_editor/css/snd_tinymce_editor.css?v=2.0"
 app_include_js = [
     # "https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.2.0/tinymce.min.js",
-    "/assets/snd_tinymce_editor/tinymce/tinymce.js",
-    "/assets/snd_tinymce_editor/js/snd_tinymce_editor.js"
+    "/assets/snd_tinymce_editor/tinymce/tinymce.js?v=2.0",
+    "/assets/snd_tinymce_editor/js/snd_tinymce_editor.js?v=2.0"
 ]
 
 # include js, css files in header of web template

@@ -160,7 +160,7 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
             menubar: 'file edit view insert format tools table sanad_menu',
             menu: {
                 sanad_menu: {
-                    title: 'أدوات سند',
+                    title: 'أدوات المحرر',
                     items: 'sanad_templates_menu sanad_snippets_menu smart_vars_menu | sanad_add_category_menu sanad_add_snippet_menu'
                 }
             },
@@ -205,31 +205,31 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
             body_class: 'snd-tiny-editor',
             readonly: !!self.df.read_only || (self.frm && self.frm.doc.docstatus === 1),
 
-            setup: function(editor) {
+            setup: function (editor) {
                 self._snd_editor = editor;
                 self._snd_editor_id = editor.id;
 
                 /* ── الأحداث ── */
-                editor.on('init', function() {
+                editor.on('init', function () {
                     if (self.value) {
                         editor.setContent(self.value);
                     }
                 });
 
-                editor.on('Dirty', function() {
+                editor.on('Dirty', function () {
                     self._snd_make_dirty();
                     tinymce.activeEditor.isNotDirty = true;
                 });
 
-                editor.on('Change NodeChange SetContent keyup paste', function(e) {
+                editor.on('Change NodeChange SetContent keyup paste', function (e) {
                     self.frm &&
                         self.frm.$wrapper.find('button[data-label="Save"]')
-                            .on('click', function() {
+                            .on('click', function () {
                                 self.parse_validate_and_set_in_model(editor.getContent());
                             });
                 });
 
-                editor.addShortcut('ctrl+s', 'Save', function() {
+                editor.addShortcut('ctrl+s', 'Save', function () {
                     const content = tinymce.get(editor.id).getContent();
                     self.parse_validate_and_set_in_model(content);
                     self._snd_save_if_dirty();
@@ -252,7 +252,7 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         editor.ui.registry.addMenuButton('snd_cell_align_btn', {
             text: 'مواءمة الخلية',
             tooltip: 'مواءمة وضبط النص داخل خلايا الجدول',
-            fetch: function(cb) {
+            fetch: function (cb) {
                 cb([
                     {
                         type: 'menuitem',
@@ -331,11 +331,11 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         editor.ui.registry.addMenuButton('sanad_snippets_btn', {
             text: '✍️ مقتطفات',
             tooltip: 'ديباجات وصيغ جاهزة (مقدمات، خواتم، شروط، جداول)',
-            fetch: function(cb) {
+            fetch: function (cb) {
                 frappe.call({
                     method: 'snd_tinymce_editor.snd_tinymce_editor.api.templates.get_quick_snippets',
                     args: { target_doctype: current_doctype },
-                    callback: function(r) {
+                    callback: function (r) {
                         const snippets = r.message || [];
                         const menuItems = [];
 
@@ -351,7 +351,7 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
                                 menuItems.push({
                                     type: 'nestedmenuitem',
                                     text: cat,
-                                    getSubmenuItems: function() {
+                                    getSubmenuItems: function () {
                                         return categories[cat].map(s => ({
                                             type: 'menuitem',
                                             text: s.title,
@@ -403,31 +403,31 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         });
 
         /* ── {x} المتغيرات الذكية ── */
-        editor.ui.registry.addMenuButton('smart_vars_btn', {
-            text: '{x} متغير',
-            tooltip: 'إدراج حقل ديناميكي من المستند الحالي',
-            fetch: function(cb) {
-                if (!current_doctype) {
-                    cb([{ type: 'menuitem', text: 'افتح مستنداً أولاً', enabled: false }]);
-                    return;
-                }
-                frappe.call({
-                    method: 'snd_tinymce_editor.snd_tinymce_editor.api.templates.get_doctype_fields',
-                    args: { target_doctype: current_doctype },
-                    callback: function(r) {
-                        cb((r.message || []).map(f => ({
-                            type: 'menuitem',
-                            text: f.label,
-                            onAction: () => editor.insertContent(f.value)
-                        })));
-                    }
-                });
-            }
-        });
-        editor.ui.registry.addMenuItem('smart_vars_menu', {
-            text: '{x} متغيرات ذكية',
-            onAction: () => editor.execCommand('mceMenuButton', false, 'smart_vars_btn')
-        });
+        // editor.ui.registry.addMenuButton('smart_vars_btn', {
+        //     text: '{x} متغير',
+        //     tooltip: 'إدراج حقل ديناميكي من المستند الحالي',
+        //     fetch: function (cb) {
+        //         if (!current_doctype) {
+        //             cb([{ type: 'menuitem', text: 'افتح مستنداً أولاً', enabled: false }]);
+        //             return;
+        //         }
+        //         frappe.call({
+        //             method: 'snd_tinymce_editor.snd_tinymce_editor.api.templates.get_doctype_fields',
+        //             args: { target_doctype: current_doctype },
+        //             callback: function (r) {
+        //                 cb((r.message || []).map(f => ({
+        //                     type: 'menuitem',
+        //                     text: f.label,
+        //                     onAction: () => editor.insertContent(f.value)
+        //                 })));
+        //             }
+        //         });
+        //     }
+        // });
+        // editor.ui.registry.addMenuItem('smart_vars_menu', {
+        //     text: '{x} متغيرات ذكية',
+        //     onAction: () => editor.execCommand('mceMenuButton', false, 'smart_vars_btn')
+        // });
 
         /* ── عناصر إضافية في قائمة أدوات سند ── */
         editor.ui.registry.addMenuItem('sanad_add_category_menu', {
@@ -516,7 +516,7 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         frappe.call({
             method: 'snd_tinymce_editor.snd_tinymce_editor.api.templates.get_templates',
             args: { target_doctype: current_doctype },
-            callback: function(r) {
+            callback: function (r) {
                 const templates = r.message || [];
 
                 if (!templates.length) {
@@ -557,7 +557,7 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
                         </style>`
                     }],
                     primary_action_label: __('إدراج في المحرر'),
-                    primary_action: function() {
+                    primary_action: function () {
                         const card = d.$wrapper.find('.snd-tpl-card.active');
                         const idx = parseInt(card.data('idx'));
                         if (!isNaN(idx) && templates[idx]) {
@@ -570,7 +570,7 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
 
                 d.show();
 
-                d.$wrapper.on('click', '.snd-tpl-card', function() {
+                d.$wrapper.on('click', '.snd-tpl-card', function () {
                     d.$wrapper.find('.snd-tpl-card').removeClass('active');
                     $(this).addClass('active');
                     const idx = parseInt($(this).data('idx'));
