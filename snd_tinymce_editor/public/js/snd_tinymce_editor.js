@@ -31,53 +31,19 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         );
     }
 
-    /* ─── التحقق من إمكانية التعديل (مسودة Draft أو معادة للتعديل Edit فقط) ─── */
+    /* ─── التحقق من إمكانية التعديل ─── */
     _snd_is_editable() {
-        // 1. الحقل محدد كقراءة فقط في الخصائص
-        if (this.df && this.df.read_only) return false;
-
+        if (this.df && (this.df.read_only || this.df.disabled)) return false;
         if (!this.frm || !this.frm.doc) return true;
 
         const doc = this.frm.doc;
 
-        // 2. التحقق من صلاحية المستخدم بالكتابة على المستند
         if (this.frm.perm && this.frm.perm[0] && !this.frm.perm[0].write) {
             return false;
         }
 
-        // 3. فحص حالة التقديم docstatus للمستندات الخاضعة للتقديم (Submittable)
-        // 0 = مسودة (Draft) أو معادة للتعديل (Amended Draft) -> مسموح بالكتابة
-        // 1 = معتمد (Submitted) -> مجمد
-        // 2 = ملغى (Cancelled) -> مجمد
-        if (doc.docstatus !== undefined && doc.docstatus !== null) {
-            if (doc.docstatus === 1 || doc.docstatus === 2) {
-                return false;
-            }
-        }
-
-        // 4. فحص حقل الحالة status للمستندات العادية (إذا كان موجوداً)
-        if (doc.status) {
-            const status_lower = String(doc.status).toLowerCase().trim();
-            const frozen_statuses = [
-                'submitted', 'approved', 'cancelled', 'canceled', 'closed',
-                'completed', 'rejected', 'expired', 'archived',
-                'معتمد', 'ملغى', 'مغلق', 'مكتمل', 'مرفوض', 'منتهي'
-            ];
-            if (frozen_statuses.includes(status_lower)) {
-                return false;
-            }
-        }
-
-        // 5. فحص حالة سير العمل workflow_state (إن وُجد)
-        if (doc.workflow_state) {
-            const ws_lower = String(doc.workflow_state).toLowerCase().trim();
-            const frozen_workflow = [
-                'approved', 'submitted', 'cancelled', 'rejected',
-                'معتمد', 'مرفوض', 'ملغى', 'مكتمل'
-            ];
-            if (frozen_workflow.includes(ws_lower)) {
-                return false;
-            }
+        if (doc.docstatus === 1 || doc.docstatus === 2) {
+            return false;
         }
 
         return true;
@@ -165,7 +131,6 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
                 text-align: center !important;
             }
 
-            /* مظهر المستند المجمد (للقراءة فقط) */
             body.snd-tiny-editor[contenteditable="false"],
             body.snd-tiny-editor.tox-edit-area__iframe--readonly {
                 background-color: #fafbfc !important;
@@ -188,7 +153,6 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
             }
         `;
 
-        // أدوات سند في الشريط: إظهار زر المتغيرات الذكية للأدمن فقط
         const sanad_tools_row = is_admin
             ? 'sanad_templates_btn sanad_snippets_btn smart_vars_btn'
             : 'sanad_templates_btn sanad_snippets_btn';
@@ -204,7 +168,6 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
             height: 880,
             min_height: 500,
 
-            /* إعدادات الجداول المتقدمة */
             table_sizing_mode: 'relative',
             table_column_resizing: 'rescale',
             table_default_attributes: { border: '1' },
@@ -220,11 +183,8 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
             table_grid: true,
             table_style_by_css: true,
 
-            /* شريط أدوات منظم في صفين أنيقين بدقة مماثلة لبرنامج Word */
             toolbar: [
-                /* الصف الأول: التراجع + الخطوط بالحجم والتنسيق والألوان + المحاذاة والاتجاه */
                 'undo redo | fontfamily fontsize blocks | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | ltr rtl',
-                /* الصف الثاني: أدوات سند (حسب الصلاحية) + الجداول ومواءمة الخلايا + القوائم والإدراجات المتقدمة */
                 `${sanad_tools_row} | table snd_cell_align_btn | numlist bullist | outdent indent | hr charmap emoticons | link image | removeformat | searchreplace visualblocks fullscreen code`
             ],
             toolbar_mode: 'sliding',
@@ -243,7 +203,6 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
                 }
             },
 
-            /* قائمة الخطوط بأسمائها كما في Microsoft Word */
             font_family_formats: [
                 'Arial=Arial, Helvetica, sans-serif',
                 'Calibri=Calibri, Candara, Segoe, Segoe UI, Optima, Arial, sans-serif',
@@ -270,7 +229,6 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
                 'Courier New=Courier New, Courier, monospace'
             ].join('; '),
 
-            /* مقاسات الخطوط القياسية */
             font_size_formats: '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 22pt 24pt 26pt 28pt 36pt 48pt 72pt',
             promotion: false,
             branding: false,
@@ -281,19 +239,23 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
             link_default_target: '_blank',
             highlight_on_focus: false,
             body_class: 'snd-tiny-editor',
-
-            // تجميد المحرر ومنع الكتابة إلا إذا كان المستند مسودة Draft أو معادة للتعديل
             readonly: !is_editable,
 
             setup: function(editor) {
                 self._snd_editor = editor;
                 self._snd_editor_id = editor.id;
 
-                /* ── الأحداث ── */
                 editor.on('init', function() {
-                    if (self.value) {
-                        editor.setContent(self.value);
+                    self._is_setting_value = true;
+                    try {
+                        const initVal = self.value || (self.frm && self.frm.doc && self.frm.doc[self.df.fieldname]) || '';
+                        if (initVal) {
+                            editor.setContent(initVal);
+                        }
+                    } finally {
+                        self._is_setting_value = false;
                     }
+
                     if (!self._snd_is_editable() && editor.mode) {
                         editor.mode.set('readonly');
                     }
@@ -301,40 +263,31 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
 
                 editor.on('Dirty', function() {
                     self._snd_make_dirty();
-                    tinymce.activeEditor.isNotDirty = true;
+                    if (tinymce.activeEditor) {
+                        tinymce.activeEditor.isNotDirty = true;
+                    }
                 });
 
-                // مزامنة المحتوى تلقائياً مع النموذج عند أي كتابة أو تعديل
-                editor.on('Change NodeChange SetContent keyup paste', function() {
-                    const content = editor.getContent();
-                    self.parse_validate_and_set_in_model(content);
+                // مزامنة المحتوى تلقائياً وبأمان عند إدخال المستخدم
+                const debounced_sync = frappe.utils.debounce(() => {
+                    self._snd_sync_editor_to_doc(editor);
+                }, 250);
+
+                editor.on('input change keyup paste undo redo', function() {
+                    debounced_sync();
                 });
 
-                // اختصار Ctrl+S لحفظ المستند مباشرة في Frappe
+                editor.on('blur', function() {
+                    self._snd_sync_editor_to_doc(editor);
+                });
+
                 editor.addShortcut('ctrl+s', 'Save', function(e) {
                     if (e && e.preventDefault) e.preventDefault();
-                    const content = editor.getContent();
-                    self.parse_validate_and_set_in_model(content);
+                    self._snd_sync_editor_to_doc(editor);
                     if (self.frm) {
                         self.frm.save();
                     }
                 });
-
-                // ربط خطاف الحفظ قبل حفظ النموذج للتأكد من حفظ المحرر سواء كان الزر Save أو حفظ
-                if (self.frm && !self._snd_hooked_before_save) {
-                    self._snd_hooked_before_save = true;
-                    const prev_before_save = self.frm.cscript && self.frm.cscript.before_save;
-                    self.frm.cscript = self.frm.cscript || {};
-                    self.frm.cscript.before_save = function(doc, dt, dn) {
-                        const ed = self._snd_editor || tinymce.get(self._snd_editor_id);
-                        if (ed) {
-                            self.parse_validate_and_set_in_model(ed.getContent());
-                        }
-                        if (typeof prev_before_save === 'function') {
-                            return prev_before_save.apply(this, arguments);
-                        }
-                    };
-                }
 
                 /* ── تسجيل أزرار النماذج والمقتطفات ومواءمة الخلايا ── */
                 self._snd_register_buttons(editor, is_admin);
@@ -344,10 +297,24 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         this.activeEditor = tinymce.activeEditor;
     }
 
+    /* ─── مزامنة آمنة من المحرر إلى المستند ─── */
+    _snd_sync_editor_to_doc(editor) {
+        if (this._is_setting_value) return;
+        const ed = editor || this._snd_editor || (this._snd_editor_id && tinymce.get(this._snd_editor_id));
+        if (!ed || !ed.initialized) return;
+
+        const content = ed.getContent();
+        this.value = content;
+        if (this.frm && this.frm.doc && this.df && this.df.fieldname) {
+            this.frm.doc[this.df.fieldname] = content;
+            this._snd_make_dirty();
+        }
+    }
+
     /* ─── تحديث حالة التجميد/التحرير عند تحديث النموذج ─── */
     refresh() {
         super.refresh();
-        if (this.is_tinymce_editor && this._snd_editor) {
+        if (this.is_tinymce_editor && this._snd_editor && this._snd_editor.initialized) {
             const is_editable = this._snd_is_editable();
             if (this._snd_editor.mode) {
                 this._snd_editor.mode.set(is_editable ? 'design' : 'readonly');
@@ -451,57 +418,46 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
                         const snippets = r.message || [];
                         const menuItems = [];
 
-                        if (snippets.length > 0) {
-                            const categories = {};
-                            snippets.forEach(s => {
-                                const cat = s.category || 'أخرى';
-                                if (!categories[cat]) categories[cat] = [];
-                                categories[cat].push(s);
-                            });
+                        const categories = {};
+                        snippets.forEach(s => {
+                            const cat = s.category || 'أخرى';
+                            if (!categories[cat]) categories[cat] = [];
+                            categories[cat].push(s);
+                        });
 
-                            Object.keys(categories).forEach(cat => {
-                                menuItems.push({
-                                    type: 'nestedmenuitem',
-                                    text: cat,
-                                    getSubmenuItems: function() {
-                                        return categories[cat].map(s => ({
-                                            type: 'menuitem',
-                                            text: s.title,
-                                            onAction: () => {
-                                                editor.insertContent(s.content);
-                                            }
-                                        }));
-                                    }
-                                });
+                        Object.keys(categories).forEach(cat => {
+                            menuItems.push({
+                                type: 'nestedmenuitem',
+                                text: cat,
+                                getSubmenuItems: function() {
+                                    return categories[cat].map(s => ({
+                                        type: 'menuitem',
+                                        text: s.title,
+                                        onAction: () => {
+                                            editor.insertContent(s.content);
+                                            self._snd_sync_editor_to_doc(editor);
+                                            frappe.show_alert({ message: __('تم إدراج المقتطف ✅'), indicator: 'green' });
+                                        }
+                                    }));
+                                }
                             });
-                            menuItems.push({ type: 'separator' });
+                        });
+
+                        if (!menuItems.length) {
+                            menuItems.push({
+                                type: 'menuitem',
+                                text: __('لا توجد مقتطفات مضافة'),
+                                enabled: false
+                            });
                         }
 
+                        menuItems.push({ type: 'separator' });
                         menuItems.push({
                             type: 'menuitem',
-                            text: '➕ إضافة تصنيف مقتطفات جديد...',
+                            text: '➕ إضافة مقتطف جديد...',
                             onAction: () => {
-                                frappe.new_doc('Sanad Snippet Category');
+                                frappe.new_doc('Sanad Document Snippet');
                             }
-                        });
-                        menuItems.push({
-                            type: 'menuitem',
-                            text: '➕ إضافة صيغة/مقتطف جديد...',
-                            onAction: () => {
-                                frappe.new_doc('Sanad Document Snippet', {
-                                    target_doctype: current_doctype || ''
-                                });
-                            }
-                        });
-                        menuItems.push({
-                            type: 'menuitem',
-                            text: '🏷️ إدارة التصنيفات (Desk)...',
-                            onAction: () => frappe.set_route('List', 'Sanad Snippet Category')
-                        });
-                        menuItems.push({
-                            type: 'menuitem',
-                            text: '⚙️ إدارة كافة المقتطفات (Desk)...',
-                            onAction: () => frappe.set_route('List', 'Sanad Document Snippet')
                         });
 
                         cb(menuItems);
@@ -510,80 +466,51 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
             }
         });
         editor.ui.registry.addMenuItem('sanad_snippets_menu', {
-            text: '✍️ مقتطفات سريعة',
+            text: '✍️ المقتطفات والديباجات',
             onAction: () => editor.execCommand('mceMenuButton', false, 'sanad_snippets_btn')
         });
 
-        /* ── {x} المتغيرات الذكية (مقتصرة على الأدمن فقط) ── */
-        if (is_admin) {
-            editor.ui.registry.addMenuButton('smart_vars_btn', {
-                text: '{x} متغير',
-                tooltip: 'إدراج حقل ديناميكي من المستند الحالي (خاص بالمسؤولين)',
-                fetch: function(cb) {
-                    if (!current_doctype) {
-                        cb([{ type: 'menuitem', text: 'افتح مستنداً أولاً', enabled: false }]);
-                        return;
-                    }
-                    frappe.call({
-                        method: 'snd_tinymce_editor.snd_tinymce_editor.api.templates.get_doctype_fields',
-                        args: { target_doctype: current_doctype },
-                        callback: function(r) {
-                            cb((r.message || []).map(f => ({
-                                type: 'menuitem',
-                                text: f.label,
-                                onAction: () => editor.insertContent(f.value)
-                            })));
-                        }
-                    });
-                }
-            });
-            editor.ui.registry.addMenuItem('smart_vars_menu', {
-                text: '{x} متغيرات ذكية',
-                onAction: () => editor.execCommand('mceMenuButton', false, 'smart_vars_btn')
-            });
-        }
-
         /* ── عناصر إضافية في قائمة أدوات سند ── */
         editor.ui.registry.addMenuItem('sanad_add_category_menu', {
-            text: '🏷️ إضافة تصنيف مقتطفات جديد...',
-            onAction: () => frappe.new_doc('Sanad Snippet Category')
+            text: '🏷️ إدارة تصنيفات المقتطفات',
+            onAction: () => frappe.set_route('List', 'Sanad Snippet Category')
         });
         editor.ui.registry.addMenuItem('sanad_add_snippet_menu', {
-            text: '➕ إضافة مقتطف جديد...',
-            onAction: () => frappe.new_doc('Sanad Document Snippet', {
-                target_doctype: current_doctype || ''
-            })
+            text: '➕ إضافة ديباجة أو مقتطف جديد',
+            onAction: () => frappe.new_doc('Sanad Document Snippet')
         });
     }
 
-    /* ─── تطبيق مواءمة النص في خلايا الجدول ─── */
+    /* ─── تطبيق المحاذاة على خلايا الجدول ─── */
     _snd_apply_cell_align(editor, styles) {
         const node = editor.selection.getNode();
-        const cell = node ? node.closest('td, th') : null;
-        if (!cell) {
+        let targetCell = node ? (node.tagName === 'TD' || node.tagName === 'TH' ? node : node.closest('td, th')) : null;
+
+        if (!targetCell) {
             frappe.show_alert({ message: __('يرجى وضع المؤشر داخل إحدى خلايا الجدول أولاً'), indicator: 'orange' });
             return;
         }
 
-        const doc = editor.getDoc();
-        const selectedCells = doc ? doc.querySelectorAll('td[data-mce-selected], th[data-mce-selected]') : [];
-        const targets = selectedCells.length ? Array.from(selectedCells) : [cell];
+        const selectedCells = editor.dom.select('td[data-mce-selected], th[data-mce-selected]');
+        const cellsToApply = (selectedCells && selectedCells.length > 0) ? selectedCells : [targetCell];
 
         editor.undoManager.transact(() => {
-            targets.forEach(c => {
-                Object.keys(styles).forEach(k => {
-                    c.style.setProperty(k, styles[k], 'important');
+            cellsToApply.forEach(cell => {
+                Object.keys(styles).forEach(prop => {
+                    cell.style[prop] = styles[prop];
                 });
                 if (styles['text-align']) {
-                    const innerBlocks = c.querySelectorAll('p, div, span');
-                    innerBlocks.forEach(b => {
-                        b.style.setProperty('text-align', styles['text-align'], 'important');
+                    const children = cell.querySelectorAll('p, div, span, h1, h2, h3, h4, h5, h6');
+                    children.forEach(child => {
+                        child.style['text-align'] = styles['text-align'];
                     });
                 }
             });
         });
+
+        frappe.show_alert({ message: __('تمت مواءمة الخلية بنجاح ✅'), indicator: 'green' });
         editor.nodeChanged();
-        frappe.show_alert({ message: __('تمت مواءمة محاذاة الخلية ✅'), indicator: 'green' });
+        this._snd_sync_editor_to_doc(editor);
     }
 
     /* ─── مواءمة وتوزيع أعمدة الجدول بالتساوي ─── */
@@ -623,10 +550,12 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         });
         frappe.show_alert({ message: __('تمت مواءمة وتوزيع أعمدة الجدول بالتساوي ✅'), indicator: 'green' });
         editor.nodeChanged();
+        this._snd_sync_editor_to_doc(editor);
     }
 
     /* ─── نافذة اختيار النموذج ─── */
     _snd_open_templates_dialog(editor, current_doctype) {
+        const self = this;
         frappe.call({
             method: 'snd_tinymce_editor.snd_tinymce_editor.api.templates.get_templates',
             args: { target_doctype: current_doctype },
@@ -676,6 +605,7 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
                         const idx = parseInt(card.data('idx'));
                         if (!isNaN(idx) && templates[idx]) {
                             editor.setContent(templates[idx].template_content);
+                            self._snd_sync_editor_to_doc(editor);
                             d.hide();
                             frappe.show_alert({ message: __('تم إدراج النموذج ✅'), indicator: 'green' });
                         }
@@ -696,7 +626,7 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         });
     }
 
-    /* ─── ضبط القيمة (TinyMCE + Quill) ─── */
+    /* ─── ضبط القيمة ─── */
     set_formatted_input(value) {
         if (this.is_tinymce_editor) {
             this._snd_set_tiny_value(value);
@@ -706,10 +636,16 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
     }
 
     _snd_set_tiny_value(value) {
-        const ed = this._snd_editor || tinymce.get(this._snd_editor_id) || tinymce.activeEditor;
-        if (!ed) return;
+        const ed = this._snd_editor || (this._snd_editor_id && tinymce.get(this._snd_editor_id));
+        if (!ed || !ed.initialized) return;
         if (value === ed.getContent()) return;
-        ed.setContent(value || '');
+
+        this._is_setting_value = true;
+        try {
+            ed.setContent(value || '');
+        } finally {
+            this._is_setting_value = false;
+        }
     }
 
     _snd_set_quill_value(value) {
@@ -723,13 +659,28 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
         this.quill.setContents(delta);
     }
 
-    /* ─── قراءة قيمة الإدخال ─── */
+    /* ─── قراءة قيمة الإدخال ومزامنتها حياً ─── */
     get_input_value() {
         if (this.is_tinymce_editor) {
-            const ed = this._snd_editor || tinymce.get(this._snd_editor_id);
-            return ed ? ed.getContent() : (this.value || '');
+            const ed = this._snd_editor || (this._snd_editor_id && tinymce.get(this._snd_editor_id));
+            if (ed && ed.initialized) {
+                const val = ed.getContent();
+                this.value = val;
+                if (this.frm && this.frm.doc && this.df && this.df.fieldname) {
+                    this.frm.doc[this.df.fieldname] = val;
+                }
+                return val;
+            }
+            return this.value || (this.frm && this.frm.doc && this.frm.doc[this.df.fieldname]) || '';
         }
         return super.get_input_value();
+    }
+
+    get_value() {
+        if (this.is_tinymce_editor) {
+            return this.get_input_value();
+        }
+        return super.get_value();
     }
 
     /* ─── مساعدات الحفظ وحالة التعديل ─── */
@@ -746,4 +697,22 @@ frappe.ui.form.ControlTextEditor = class ControlTextEditor extends frappe.ui.for
     }
 };
 
-console.log('✅ SND TinyMCE Editor loaded (Universal Save + Draft/Edit Freeze Mode + Admin-only Smart Vars)');
+/* ─── خطاف عام لضمان مزامنة كافة محررات TinyMCE النشطة قبل أي حفظ أو إرسال أو إجراء Workflow ─── */
+$(document).on('before_workflow_action submit', function() {
+    if (window.tinymce && window.cur_frm && cur_frm.fields) {
+        cur_frm.fields.forEach(f => {
+            if (f.is_tinymce_editor && f._snd_editor_id) {
+                const ed = tinymce.get(f._snd_editor_id);
+                if (ed && ed.initialized) {
+                    const content = ed.getContent();
+                    f.value = content;
+                    if (cur_frm.doc && f.df && f.df.fieldname) {
+                        cur_frm.doc[f.df.fieldname] = content;
+                    }
+                }
+            }
+        });
+    }
+});
+
+console.log('✅ SND TinyMCE Editor loaded (Secure Two-Way Sync + Workflow Send Protection)');
