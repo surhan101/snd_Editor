@@ -1,0 +1,142 @@
+{
+ "actions": [],
+ "creation": "2026-10-30 05:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "template",
+  "template_name",
+  "category",
+  "is_public",
+  "column_break_info",
+  "department",
+  "user",
+  "user_fullname",
+  "section_break_target",
+  "target_doctype",
+  "target_docname",
+  "usage_timestamp"
+ ],
+ "fields": [
+  {
+   "fieldname": "template",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "النموذج",
+   "options": "Sanad Document Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "اسم النموذج"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "التصنيف"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_public",
+   "fieldtype": "Check",
+   "label": "نموذج عام"
+  },
+  {
+   "fieldname": "column_break_info",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "الإدارة / الدائرة",
+   "options": "Sanad Department"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "المستخدم",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user_fullname",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "الاسم الكامل للمستخدم"
+  },
+  {
+   "fieldname": "section_break_target",
+   "fieldtype": "Section Break",
+   "label": "المستند والوقت"
+  },
+  {
+   "fieldname": "target_doctype",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "المستند المرتبط (DocType)",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "target_docname",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "رقم المستند"
+  },
+  {
+   "default": "Now",
+   "fieldname": "usage_timestamp",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "وقت الاستخدام",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-30 05:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Snd Tinymce Editor",
+ "name": "Sanad Template Usage Log",
+ "naming_rule": "Expression (old style)",
+ "autoname": "STUL-.#####",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sanad Template Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "report": 1,
+   "role": "All"
+  }
+ ],
+ "sort_field": "usage_timestamp",
+ "sort_order": "DESC",
+ "track_changes": 0
+}

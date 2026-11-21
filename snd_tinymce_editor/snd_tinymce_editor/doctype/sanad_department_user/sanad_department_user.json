@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-10-30 05:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "user_fullname",
+  "role_in_department"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "المستخدم",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "user.full_name",
+   "fieldname": "user_fullname",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "الاسم الكامل",
+   "read_only": 1
+  },
+  {
+   "default": "موظف",
+   "fieldname": "role_in_department",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "الدور في الإدارة",
+   "options": "مدير إدارة\nنائب مدير\nرئيس قسم\nأخصائي\nموظف"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-10-30 05:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Snd Tinymce Editor",
+ "name": "Sanad Department User",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
